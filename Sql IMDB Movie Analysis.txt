@@ -1,0 +1,153 @@
+#using Database 
+use imdb;
+show tables;
+
+#creating table and discribe
+create table movie(movie_name char(60),movie_date date,score int(4),genre longtext,movie_status char(40),ori_lang char(50),budget bigint(15),revenue bigint(15),country char(10));
+select * from movie;
+desc movie;
+
+#displaying the table and count number of rows
+select * from movie limit 10;
+select count(*) from movie;
+
+/* Finding null values is present in table */
+select * from movie isnull;
+
+/* score in order */
+select * from movie order by score desc;
+
+/* Grouping the movie in status wise */
+select distinct(status) from movie; 
+select status,count(status) as status_kind from movie group by status;
+
+/* which country movie have highest gross and score*/
+select movie_name,max(score) as max_score,country,revenue from movie group by country order by revenue desc;
+select movie_name,max(revenue) as max_revenue,country,score from movie group by country order by score desc;
+
+/* finding average revenue of movie in each country */
+select country,avg(revenue) from movie group by country;
+
+/* seprate the score into rating */
+select movie_name,score,
+case 
+when score<=100 and score>=90 then '5 Star' 
+when score<=89 and score>=80 then '4 Star'
+when score<=79 and score>=70 then '3 Star'
+when score<=69 and score>=60 then '2 Star'
+else '1 Star'
+end as rating
+from movie
+order by score desc;
+
+/* counting number of movie in which rating */
+select count(movie_name),score,country,
+case 
+when score<=100 and score>=90 then '5 Star' 
+when score<=89 and score>=80 then '4 Star'
+when score<=79 and score>=70 then '3 Star'
+when score<=69 and score>=60 then '2 Star'
+else '1 Star'
+end as rating
+from movie
+group by rating
+order by score desc;
+
+/* counting number of movie in which rating by each country */
+select count(movie_name),score,country,
+case 
+when score<=100 and score>=90 then '5 Star' 
+when score<=89 and score>=80 then '4 Star'
+when score<=79 and score>=70 then '3 Star'
+when score<=69 and score>=60 then '2 Star'
+else '1 Star'
+end as rating
+from movie
+group by rating,country
+order by score desc;
+/* counting number of movie in which rating,country and orign language of movie */
+select count(movie_name)as movie_count,revenue,score,country,ori_lang,
+case 
+when score<=100 and score>=90 then '5 Star' 
+when score<=89 and score>=80 then '4 Star'
+when score<=79 and score>=70 then '3 Star'
+when score<=69 and score>=60 then '2 Star'
+else '1 Star'
+end as rating
+from movie
+group by rating,country,ori_lang
+order by revenue desc;
+
+select count(movie_name)as movie_count,avg(revenue),score,country,ori_lang,
+case 
+when score<=100 and score>=90 then '5 Star' 
+when score<=89 and score>=80 then '4 Star'
+when score<=79 and score>=70 then '3 Star'
+when score<=69 and score>=60 then '2 Star'
+else '1 Star'
+end as rating
+from movie
+group by rating,country,ori_lang;
+
+/* finding maximum revenue in which language and country of movie*/
+select ori_lang,max(revenue) as max_revenue,country from movie group by country;  
+
+
+select count(movie_name) as count_movie,max(revenue) as max_revenue,score,country,ori_lang from movie group by country order by revenue desc;
+
+/* finding which genre have high revenue*/
+select count(movie_name) as movie_count,genre from movie group by genre;
+select count(movie_name) as movie_count,sum(budget) as total_movie_budget,sum(revenue) as total_movie_revenue,country from movie where genre like "%Drama%" group by country;
+select count(movie_name) as movie_count,sum(budget) as total_movie_budget,sum(revenue) as total_movie_revenue,country from movie where genre like "%Action%" group by country;
+select count(movie_name) as movie_count,sum(budget) as total_movie_budget,sum(revenue) as total_movie_revenue,country from movie where genre like "%Animation%" group by country;
+select count(movie_name) as movie_count,sum(budget) as total_movie_budget,sum(revenue) as total_movie_revenue,country from movie where genre like "%Adventure%" group by country;
+select count(movie_name) as movie_count,sum(budget) as total_movie_budget,sum(revenue) as total_movie_revenue,country from movie where genre like "%Horror%" group by country;
+
+/* counting how many movie released in single year for each year*/
+select year(movie_date) as year_of_movie,count(movie_name) as no_of_movie from movie group by year(movie_date) order by count(movie_name) desc;
+
+/*counting how many movie released in ecah month */
+select month(movie_date) as month_of_movie,count(movie_name) as no_of_movie from movie group by month(movie_date) order by count(movie_name) desc;
+
+/*finding which year have highest revenue*/
+select year(movie_date) as year_of_movie,sum(revenue) as total_movie_revenue from movie group by year(movie_date) order by sum(revenue) desc;
+
+/*finding which year and which country have the highest revenue*/
+with year_movie as(select year(movie_date) as movie_year,count(movie_name) as total_movie,country,sum(revenue) as total_movie_revenue from movie group by country,year(movie_date) order by count(movie_name) desc)
+select * from year_movie; 
+
+/*finding which month and which country have the highest revenue*/
+select month(movie_date) as movie_year,count(movie_name) as total_movie,country,sum(revenue) as total_movie_revenue from movie group by country,month(movie_date) order by count(movie_name) desc;
+
+/*finding highest total revenue of which year and which country*/
+select year(movie_date) as movie_year,sum(revenue) as total_movie_revenue,country from movie group by country,year(movie_date) order by sum(revenue) desc;
+
+
+/*finding highest total revenue of which month and which country*/
+select month(movie_date) as movie_month,sum(revenue) as total_movie_revenue,country from movie group by country,month(movie_date) order by sum(revenue) desc;
+
+/*counting number of movie in language wise*/
+select ori_lang,count(movie_name) as no_of_movie from movie group by ori_lang order by count(movie_name) desc;
+
+/*finding highest revenue of which lanuage*/
+select ori_lang,sum(revenue) as total_revenue from movie group by ori_lang order by sum(revenue) desc;
+
+/*finding highest profit of which year*/
+select year(movie_date) as year_movie,(revenue - budget) as profit from movie group by year(movie_date) order by profit desc;
+
+/*finding highest profit percentage of which year*/
+select year(movie_date) as year_movie,((revenue - budget)/revenue)*100 as profit from movie group by year(movie_date) order by profit desc;
+
+/*counting number of movie in year decade wise*/
+select count(movie_name) as total_movie_from_2000_to_2010 from movie where year(movie_date) between "2000" and "2010"; 
+select count(movie_name) as total_movie_from_2011_to_2023 from movie where year(movie_date) between "2011" and "2023";
+select count(movie_name) as total_movie_from_2000_to_2023 from movie where year(movie_date) between "1999" and "1990";
+select count(movie_name) as total_movie_from_2000_to_2023 from movie where year(movie_date) between "1989" and "1980";
+select count(movie_name) as total_movie_from_2000_to_2023 from movie where year(movie_date) between "1979" and "1970";
+
+/*counting number of movie in year decade wise and profit*/
+select count(movie_name),((revenue - budget)/revenue)*100 as profit_for_decade_2011_to_2023 from movie where year(movie_date) between "2011" and "2023";
+select count(movie_name),((revenue - budget)/revenue)*100 as profit_for_decade_2000_to_2010 from movie where year(movie_date) between "2000" and "2010";
+select count(movie_name),((revenue - budget)/revenue)*100 as profit_for_decade_1999_to_1990 from movie where year(movie_date) between "1999" and "1990";
+select count(movie_name),((revenue - budget)/revenue)*100 as profit_for_decade_1989_to_1980 from movie where year(movie_date) between "1989" and "1980";
+select count(movie_name),((revenue - budget)/revenue)*100 as profit_for_decade_1979_to_1970 from movie where year(movie_date) between "1979" and "1970";
